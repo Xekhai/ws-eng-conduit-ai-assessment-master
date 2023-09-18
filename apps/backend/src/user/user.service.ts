@@ -13,10 +13,11 @@ import { UserRepository } from './user.repository';
 export class UserService {
   constructor(private readonly userRepository: UserRepository, private readonly em: EntityManager) {}
 
-  async findAll(): Promise<User[]> {
-    return this.userRepository.findAll();
+  async findAll(): Promise<IUserRO[]> {
+    const users = await this.userRepository.findAll();
+    return users.map(user => this.buildUserRO(user));
   }
-
+  
   async findOne(loginUserDto: LoginUserDto): Promise<User> {
     const findOneOptions = {
       email: loginUserDto.email,
@@ -105,6 +106,7 @@ export class UserService {
 
   private buildUserRO(user: User) {
     const userRO = {
+      id: user.id,
       bio: user.bio,
       email: user.email,
       image: user.image,

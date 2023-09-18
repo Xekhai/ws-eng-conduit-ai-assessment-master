@@ -1,0 +1,38 @@
+<div class="roster-page">
+    <div class="banner">
+      <div class="container">
+        <h1 class="logo-font">Conduit Roaster</h1>
+        <p>A place to share your knowledge.</p>
+      </div>
+  
+      <!-- If users are being loaded, display loading message -->
+      <div *ngIf="isLoading">
+        Loading users...
+      </div>
+  
+      <!-- If users are loaded, display the table -->
+      <div *ngIf="!isLoading">
+        <!-- Table containing the stats for each user -->
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>User Name</th>
+              <th>Total Articles Authored</th>
+              <th>Total Likes Received</th>
+              <th>Date of First Article</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Loop through each user from 'usersWithStats' variable -->
+            <tr *ngFor="let userStat of usersWithStats">
+                <td><a href="/profile/{{ userStat.username }}">{{ userStat.username }}</a></td>
+                <td>{{ userStat.totalArticles }}</td>
+              <td>{{ userStat.totalLikes }}</td>
+              <td>{{ userStat.firstArticleDate | date:'mediumDate' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  

@@ -18,7 +18,7 @@ function listFiles(dir, fileList = []) {
     return fileList;
 }
 
-const directoryPath = './'; // Change this to your desired directory
+const directoryPath = './libs'; // Change this to your desired directory
 const allFiles = listFiles(directoryPath);
 const outputFile = 'files.txt';
 

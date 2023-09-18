@@ -8,6 +8,7 @@ import { Article } from './article.entity';
 import { IArticleRO, IArticlesRO, ICommentsRO } from './article.interface';
 import { Comment } from './comment.entity';
 import { CreateArticleDto, CreateCommentDto } from './dto';
+import { TagService } from '../tag/tag.service';
 
 @Injectable()
 export class ArticleService {
@@ -19,7 +20,17 @@ export class ArticleService {
     private readonly commentRepository: EntityRepository<Comment>,
     @InjectRepository(User)
     private readonly userRepository: EntityRepository<User>,
+    private readonly tagService: TagService,
   ) {}
+
+  async persistTags(tagList: string[]): Promise<void> {
+    for (const tagName of tagList) {
+      const existingTag = await this.tagService.find(tagName);
+      if (!existingTag) {
+        await this.tagService.create(tagName);
+      }
+    }
+  }
 
   async findAll(userId: number, query: Record<string, string>): Promise<IArticlesRO> {
     const user = userId
@@ -153,11 +164,12 @@ export class ArticleService {
       { id: userId },
       { populate: ['followers', 'favorites', 'articles'] },
     );
+
     const article = new Article(user!, dto.title, dto.description, dto.body);
-    // 
-    console.log(`DEBUG: ${dto.tagList}`);
-    // 
     article.tagList.push(...dto.tagList);
+
+    await this.persistTags(dto.tagList); // Persist tags
+
     user?.articles.add(article);
     await this.em.flush();
 
@@ -171,6 +183,11 @@ export class ArticleService {
     );
     const article = await this.articleRepository.findOne({ slug }, { populate: ['author'] });
     wrap(article).assign(articleData);
+
+    if (articleData.tagList && articleData.tagList.length > 0) {
+      await this.persistTags(articleData.tagList); // Persist tags
+    }
+
     await this.em.flush();
 
     return { article: article!.toJSON(user!) };
